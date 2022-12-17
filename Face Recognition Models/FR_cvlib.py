@@ -1,5 +1,6 @@
 import cvlib as cv
 import cv2
+# Press ESC key to exit the while loop during runtime
 
 cap = cv2.VideoCapture(0)
 

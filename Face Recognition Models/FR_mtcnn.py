@@ -1,14 +1,12 @@
 from mtcnn.mtcnn import MTCNN
-from matplotlib import pyplot 
 from numpy import asarray
 
 import cv2
+# Press ESC key to exit the while loop during runtime
 
-# model = MTCNN(weights_file='weights.npy', min_face_size=30, scale_factor=0.709)
 detector = MTCNN(scale_factor=0.709)
 
 cap = cv2.VideoCapture(0)
-
 while True:
     
     ret, frame = cap.read()
