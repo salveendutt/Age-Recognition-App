@@ -1,6 +1,8 @@
 import tkinter as tk
 import video_capture as vc
 import picture_capture as pc
+# Press ESC key to exit the while loop during runtime
+
 def open_camera():
     print('Opening Camera...')
     vc.start_video()
@@ -25,16 +27,12 @@ if __name__ == '__main__':
         text = "Open Camera",
         width = 15,
         height = 3,
-        # bg = 
-        # fg = 
         command = open_camera
         ).pack()
     button = tk.Button(
         text = "Open Picture",
         width = 15,
         height = 3,
-        # bg = 
-        # fg = 
         command = open_picture
         ).pack()
     window.mainloop()
