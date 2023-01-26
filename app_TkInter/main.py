@@ -1,6 +1,7 @@
 import tkinter as tk
 import video_capture as vc
 import picture_capture as pc
+from tkinter import filedialog
 # Press ESC key to exit the while loop during runtime
 
 def open_camera():
@@ -9,7 +10,8 @@ def open_camera():
     
 def open_picture():
     print('Opening Picture...')
-    pc.start_picture()
+    file_path = filedialog.askopenfilename()
+    pc.readImage(file_path)
     
 if __name__ == '__main__':
     ''' 
