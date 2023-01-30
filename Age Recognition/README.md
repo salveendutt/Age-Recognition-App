@@ -1,9 +1,8 @@
-# Some info regarding Age Recognition datasets: 
-# The data set offers ages from:
+## Datasets used for Age Recognition:
+Datasets:
+(given in the email)
+#### unified dataset: 
+is used for training which combines some of UTK, 
+#### facial_age:
+and many other datasets excluding facial-age
 
-1. **6-20**
-2. **25-30**
-3. **42-48**
-4. **60-98**
-
-Dataset: https://www.kaggle.com/datasets/rashikrahmanpritom/age-recognition-dataset
