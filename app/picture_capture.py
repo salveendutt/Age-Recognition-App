@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import video_capture as vc
 
+
 def preprocessing(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # converting image to grayscale.
     img = cv2.equalizeHist(img)
@@ -10,17 +11,18 @@ def preprocessing(img):
     img = cv2.resize(img, (64, 64))  # resizing it.
     return img
 
+
 def predict(image):
-    img = []
-    img.append(image)
-    processedImg = []
+    img = [image]
+    processed_img = []
     for x in img:
-        processedImg.append(preprocessing(x))
-    processedImg = np.array(processedImg)
-    processedImg = processedImg.reshape(processedImg.shape[0], processedImg.shape[1], processedImg.shape[2], 1)
-    result = vc.model.predict(processedImg)
+        processed_img.append(preprocessing(x))
+    processed_img = np.array(processed_img)
+    processed_img = processed_img.reshape(processed_img.shape[0], processed_img.shape[1], processed_img.shape[2], 1)
+    result = vc.model.predict(processed_img)
     predictedClass = np.argmax(result)
     return predictedClass
+
 
 def readImage(image_path):
     ages = []

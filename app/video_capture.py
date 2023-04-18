@@ -2,7 +2,7 @@ import cvlib as cv
 import cv2
 from keras.models import load_model
 import numpy as np
-model = load_model("../Age Recognition/Models/CNN_MODEL_64.h5")
+model = load_model("../Age Recognition/Models/CNN_MODEL_64_CHATGPT.h5")
 
 def getAge(age):
     if age == 0:
