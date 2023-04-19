@@ -16,8 +16,10 @@ def capture_video():
 
 # Define Streamlit app pages
 def home_page():
-    st.title("Face Recognition App - Home")
-    st.write("Welcome to the home page!")
+    st.title("The Project of Face Recognition Application")
+    st.write("Welcome to our home page!")
+    st.markdown("***Authors***: Salveen Dutt, Kamilla Tadjibaeva, \
+        Seita Fujiwara, Cansu Ustunel")
 
 def camera_page():
     st.title("Face Recognition App - Use Camera")
