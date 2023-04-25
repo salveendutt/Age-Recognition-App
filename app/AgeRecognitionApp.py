@@ -1,4 +1,5 @@
 from streamlit_option_menu import option_menu
+import cvlib as cv
 import cv2
 import streamlit as st
 import numpy as np
@@ -40,13 +41,20 @@ def camera_page():
 def picture_page():
     st.title("Face Recognition App - Use Picture")
     st.write("This is the picture page.")
-    
+
     # Add code for using a picture here
     uploaded_file = st.file_uploader("Upload a picture", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # Detect faces using cvlib
+        faces, _ = cv.detect_face(image)
+
+        # Draw a rectangle around each detected face
+        for (x1, y1, x2, y2) in faces:
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
         st.image(image, channels="RGB", use_column_width=True)
 
 # Main Streamlit app
