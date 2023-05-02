@@ -32,8 +32,10 @@ def camera_page():
     # Start capturing video frames
     video_generator = capture_video()
     for frame in video_generator:
+        faces, _ = cv.detect_face(frame) # Detect faces using cvlib
+        for (x1, y1, x2, y2) in faces:
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
         video_canvas.image(frame, channels="RGB", use_column_width=True)
-        
     # Release the webcam when app is closed
     del video_generator
     cv2.destroyAllWindows()
