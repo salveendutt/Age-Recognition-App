@@ -3,7 +3,29 @@ import cvlib as cv
 import cv2
 import streamlit as st
 import numpy as np
+from keras.models import load_model
 
+#-----------------------------------------------------------------------------------------------------------------------
+# model = load_model("C:\\Users\\mrsal\\Github Repositories\\Age-Recognition-App\\app\\models\\CNN_MODEL_64.h5")
+model = load_model("C:\\Users\\mrsal\\Github Repositories\\Age-Recognition-App\\app\\models\\CNN_MODEL_64_CHATGPT.h5")
+
+def getAge(age):
+    if age == 0:
+        return "[1-9]"
+    if age == 1:
+        return "[10-15]"
+    if age == 2:
+        return "[16-20]"
+    if age == 3:
+        return "[21-27]"
+    if age == 4:
+        return "[28-34]"
+    if age == 5:
+        return "[35-46]"
+    if age == 6:
+        return "[47-65]"
+    if age == 7:
+        return "[65-100]"
 
 # Function to capture video frames
 def capture_video():
@@ -14,7 +36,27 @@ def capture_video():
             break
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # Convert frame to RGB format
         yield frame
+        
+        
+def preprocessing(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # converting image to grayscale.
+    img = cv2.equalizeHist(img)
+    img = img / 255  # normalizing image.
+    img = cv2.resize(img, (64, 64))  # resizing it.
+    return img
 
+
+def predict(image):
+    img = [image]
+    processed_img = []
+    for x in img:
+        processed_img.append(preprocessing(x))
+    processed_img = np.array(processed_img)
+    processed_img = processed_img.reshape(processed_img.shape[0], processed_img.shape[1], processed_img.shape[2], 1)
+    result = model.predict(processed_img)
+    predictedClass = np.argmax(result)
+    return predictedClass
+#-----------------------------------------------------------------------------------------------------------------------
 # Define Streamlit app pages
 def home_page():
     st.title("The Project of Face Recognition Application")
@@ -45,6 +87,7 @@ def picture_page():
     st.write("This is the picture page.")
 
     # Add code for using a picture here
+    ages = []
     uploaded_file = st.file_uploader("Upload a picture", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
@@ -53,10 +96,14 @@ def picture_page():
 
         # Detect faces using cvlib
         faces, _ = cv.detect_face(image)
-
-        # Draw a rectangle around each detected face
-        for (x1, y1, x2, y2) in faces:
-            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
+        for face in faces:
+            x1, y1, x2, y2 = face
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            detectedFace = image[y1:y2, x1:x2]
+            ageClass = predict(detectedFace)
+            ages.append(ageClass)
+            age = getAge(ageClass)
+            st.write(f"Age: {age}") 
         st.image(image, channels="RGB", use_column_width=True)
 
 # Main Streamlit app
