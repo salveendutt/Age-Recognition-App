@@ -102,8 +102,15 @@ def picture_page():
             detectedFace = image[y1:y2, x1:x2]
             ageClass = predict(detectedFace)
             ages.append(ageClass)
+
+        for i, ageClass in enumerate(ages):
             age = getAge(ageClass)
-            st.write(f"Age: {age}") 
+            text_size, baseline = cv2.getTextSize(age, cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.5, thickness=2)
+            text_width, text_height = text_size
+            x = faces[i][0] + (faces[i][2] - faces[i][0]) // 2 - text_width // 2
+            y = faces[i][1] - text_height // 2
+            cv2.putText(image, age, (x, y), cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+
         st.image(image, channels="RGB", use_column_width=True)
 
 # Main Streamlit app
