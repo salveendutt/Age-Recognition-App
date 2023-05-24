@@ -129,4 +129,10 @@ dmypy.json
 .pyre/
 
 # IDEA
-.idea
+*.idea
+
+# Saved pictures
+*.jpg
+
+# Models
+*.h5

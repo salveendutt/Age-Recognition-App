@@ -5,8 +5,7 @@ from keras.models import load_model
 
 model = load_model("./app/models/resnet.h5")
 
-# Function to capture video frames
-        
+
 def preprocessing(given_img):
     if given_img.size == 0:
         raise ValueError("Input image is empty.")
@@ -19,12 +18,6 @@ def predict_age(image):
     processed_img = processed_img.reshape(1, 64, 64, 3)
     predicted_age = model.predict(processed_img)[0]
     return int(predicted_age)
-
-# Function for detecting faces and predicting ages in a picture
-def detect_faces(image):
-    # Detect faces using cvlib
-    faces, conf = cv.detect_face(image)
-    return faces, conf
 
 def draw_face_rectangles(image, faces):
     for face in faces:
@@ -45,22 +38,24 @@ def draw_age_label(image, face, predicted_age):
 
 def detect_faces_and_predict_age(image):
     faces, conf = cv.detect_face(image)
+    if len(faces) == 0:
+        return image  # Return the original image if no faces are detected
     draw_face_rectangles(image, faces)
-    
+    frame_height, frame_width, _ = image.shape
     for face in faces:
+        x1, y1, x2, y2 = face
+        if x1 < 0 or y1 < 0 or x2 > frame_width or y2 > frame_height:
+            continue
         detected_face = extract_detected_face(image, face)
         predicted_age = predict_age(detected_face)
         draw_age_label(image, face, predicted_age)
-    
     return image
 
-
 def my_capture_video():
-    cap = cv2.VideoCapture(0)  # open the default camera (index 0)
+    cap = cv2.VideoCapture(0) 
     while cap.isOpened():
-        ret, frame = cap.read()  # read a frame from the video stream
+        ret, frame = cap.read()
         if not ret:
             break
         yield frame
     cap.release()
-    
