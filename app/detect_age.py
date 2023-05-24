@@ -39,7 +39,7 @@ def draw_age_label(image, face, predicted_age):
 def detect_faces_and_predict_age(image):
     faces, conf = cv.detect_face(image)
     if len(faces) == 0:
-        return image  # Return the original image if no faces are detected
+        return image 
     draw_face_rectangles(image, faces)
     frame_height, frame_width, _ = image.shape
     for face in faces:
