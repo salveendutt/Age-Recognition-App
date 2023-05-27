@@ -10,7 +10,6 @@ model_emotion = load_model("./app/models/emotion.h5")
 emotion_labels = ['Happy', 'Surprise', 'Sad', 'Neutral', 'Angry', 'Disgust', 'Fear']
 
 def preprocess_emotion(image):
-    # Convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     resized = cv2.resize(gray, (48, 48))
     normalized = resized / 255.0
@@ -20,8 +19,8 @@ def preprocess_emotion(image):
 def preprocess_age(given_img):
     if given_img.size == 0:
         raise ValueError("Input image is empty.")
-    given_img = given_img / 255  # normalizing image.
-    given_img = cv2.resize(given_img, (64, 64))  # resizing it.
+    given_img = given_img / 255
+    given_img = cv2.resize(given_img, (64, 64))  
     return given_img
 
 def predict_age(image):
