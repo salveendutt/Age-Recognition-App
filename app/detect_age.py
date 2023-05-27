@@ -7,6 +7,7 @@ import numpy as np
 model_age = load_model("./app/models/resnet_age.h5")
 model_emotion = load_model("./app/models/cnn_emotion.h5")
 
+
 emotion_labels = ['Happy', 'Surprise', 'Sad', 'Neutral', 'Angry', 'Disgust', 'Fear']
 
 def preprocess_emotion(image):
