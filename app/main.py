@@ -18,7 +18,6 @@ def take_picture(video_generator):
     INDX = INDX + 1
     st.success("Picture captured and saved!")
 
-
 def capture_video():
     cap = cv2.VideoCapture(0)  
     while True:
@@ -46,7 +45,7 @@ def picture_page():
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = da.detect_faces_and_predict_age(image)
+        image = da.detect_faces_and_predict(image)
         # Display the image with predicted ages
         st.image(image, channels="RGB", use_column_width=True)
 
@@ -58,7 +57,7 @@ def camera_page():
     if st.button("Take a Picture"):
         take_picture(video_generator)
     for frame in video_generator:
-        image = da.detect_faces_and_predict_age(frame)
+        image = da.detect_faces_and_predict(frame)
         video_canvas.image(image, channels="RGB", use_column_width=True)
     del video_generator
     cv2.destroyAllWindows()
