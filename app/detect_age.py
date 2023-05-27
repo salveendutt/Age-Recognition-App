@@ -4,7 +4,7 @@ import streamlit as st
 from keras.models import load_model
 import numpy as np
 
-model_age = load_model("./app/models/resnet.h5")
+model_age = load_model("./app/models/resnet_trainable.h5")
 model_emotion = load_model("./app/models/emotion.h5")
 
 emotion_labels = ['Happy', 'Surprise', 'Sad', 'Neutral', 'Angry', 'Disgust', 'Fear']
