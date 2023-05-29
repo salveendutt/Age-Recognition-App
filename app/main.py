@@ -45,20 +45,74 @@ def picture_page():
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = da.detect_faces_and_predict(image)
-        # Display the image with predicted ages
+        # image = da.detect_faces_and_predict(image)
+        image, faces = da.detect_faces(image)
+        predictions = da.make_predictions(image, faces)
+        for face, prediction in zip(faces, predictions):
+            age = prediction['age']
+            emotion = prediction['emotion']
+            da.draw_age_label(image, face, age, emotion)
+        
         st.image(image, channels="RGB", use_column_width=True)
+
+from threading import Thread
+import time
+def age_prediction_thread(image, face, predictions, index):
+    detected_face = da.extract_detected_face(image, face)
+    predicted_age = da.predict_age(detected_face)
+    predictions[index]['age'] = predicted_age
+
+def emotion_prediction_thread(image, face, predictions, index):
+    detected_face = da.extract_detected_face(image, face)
+    predicted_emotion = da.predict_emotion(detected_face)
+    predictions[index]['emotion'] = predicted_emotion
 
 def camera_page():
     st.title("Face Recognition App - Use Camera")
     st.write("This is the camera page.")
     video_canvas = st.empty()
     video_generator = capture_video()
+    predictions = []
+    
     if st.button("Take a Picture"):
         take_picture(video_generator)
+    
+    start_time = time.time()
     for frame in video_generator:
-        image = da.detect_faces_and_predict(frame)
+        image, faces = da.detect_faces(frame)
+        
+        # Create new predictions if number of faces changed
+        if len(predictions) != len(faces):
+            predictions = [{'age': 'Unknown', 'emotion': 'Unknown'} for _ in range(len(faces))]
+        
+        # Perform threading for age and emotion prediction every 1.5 seconds
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        if elapsed_time >= 1:
+            threads = []
+            for i, (face, prediction) in enumerate(zip(faces, predictions)):
+                
+                age_thread = Thread(target=age_prediction_thread, args=(image, face, predictions, i))
+                age_thread.start()
+                threads.append(age_thread)
+                
+                emotion_thread = Thread(target=emotion_prediction_thread, args=(image, face, predictions, i))
+                emotion_thread.start()
+                threads.append(emotion_thread)
+            
+            start_time = current_time
+        
+        for face, prediction in zip(faces, predictions):
+            age = prediction['age']
+            emotion = prediction['emotion']
+            da.draw_age_label(image, face, age, emotion)
+        
         video_canvas.image(image, channels="RGB", use_column_width=True)
+    
+        # Wait for all threads to finish
+        for thread in threads:
+            thread.join()
+    
     del video_generator
     cv2.destroyAllWindows()
     

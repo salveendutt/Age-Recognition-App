@@ -56,11 +56,19 @@ def draw_age_label(image, face, predicted_age, predicted_emotion):
     cv2.putText(image, predicted_emotion, (x, y2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 
                 fontScale=1, color=(0, 255, 0), thickness=2)
 
-def detect_faces_and_predict(image):
+def detect_faces(image):
     faces, conf = cv.detect_face(image)
+    
+    for face in faces:
+        x1, y1, x2, y2 = face
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        
+    return image, faces
+
+def make_predictions(image, faces):
+    predictions = []
     if len(faces) == 0:
         return image 
-    draw_face_rectangles(image, faces)
     frame_height, frame_width, _ = image.shape
     for face in faces:
         x1, y1, x2, y2 = face
@@ -69,8 +77,12 @@ def detect_faces_and_predict(image):
         detected_face = extract_detected_face(image, face)
         predicted_age = predict_age(detected_face)
         predicted_emotion = predict_emotion(detected_face)
-        draw_age_label(image, face, predicted_age, predicted_emotion)
-    return image
+        prediction = {
+            'age': predicted_age,
+            'emotion': predicted_emotion
+        }
+        predictions.append(prediction)
+    return predictions
 
 def my_capture_video():
     cap = cv2.VideoCapture(0) 
