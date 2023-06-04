@@ -5,18 +5,38 @@ import numpy as np
 import streamlit as st
 import detect_age as da
 from streamlit_option_menu import option_menu
+import time
 import multiprocessing as mp
 
-INDX = 1;
+captured_pictures = []
 
 def take_picture(video_generator):
-    global INDX
+
     frame = next(video_generator)
-    st.image(frame, channels="RGB", use_column_width=True)
-    name = "captured_picture" + str(INDX) + ".jpg"
-    cv2.imwrite(name, frame)
-    INDX = INDX + 1
-    st.success("Picture captured and saved!")
+    success_img = st.image(frame, channels="RGB", use_column_width=True)
+    timestamp = int(time.time())
+    name = f"captured_picture_{timestamp}.jpg"
+
+    image, faces = da.detect_faces(frame)
+    predictions = da.make_predictions(image, faces)
+    for face, prediction in zip(faces, predictions):
+        age = prediction['age']
+        emotion = prediction['emotion']
+        da.draw_age_label(image, face, age, emotion)
+
+    image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)  # Convert back to BGR color space
+    cv2.imwrite(name, image_bgr)
+
+    captured_pictures = st.session_state.get("captured_pictures", [])
+    captured_pictures.append(name)
+    st.session_state["captured_pictures"] = captured_pictures
+
+    success_message = st.success("Picture captured and saved!")
+    # delete after 1 second
+    time.sleep(1)
+    success_img.empty()
+    success_message.empty()
+
 
 def capture_video():
     cap = cv2.VideoCapture(0)  
@@ -55,6 +75,7 @@ def picture_page():
         
         st.image(image, channels="RGB", use_column_width=True)
 
+
 from threading import Thread
 import time
 def age_prediction_thread(image, face, predictions, index):
@@ -73,12 +94,14 @@ def camera_page():
     video_canvas = st.empty()
     video_generator = capture_video()
     predictions = []
-    
+    threads = []  # Initialize the threads list
+
     if st.button("Take a Picture"):
         take_picture(video_generator)
     
     start_time = time.time()
     for frame in video_generator:
+
         image, faces = da.detect_faces(frame)
         
         # Create new predictions if number of faces changed
@@ -115,24 +138,27 @@ def camera_page():
     
     del video_generator
     cv2.destroyAllWindows()
-    
+
 def gallery_page():
     st.title("Face Recognition App - Picture Gallery")
     st.write("This is the picture gallery page.")
-    # Get the list of captured pictures
-    picture_files = sorted(glob.glob("captured_picture*.jpg"))
+
+    picture_files = st.session_state.get("captured_pictures", [])
+
     if len(picture_files) == 0:
-        st.write("No pictures captured yet.")
+      st.write("No pictures captured yet.")
     else:
         # Display each captured picture in a grid layout
         columns = 4
         for i in range(0, len(picture_files), columns):
             pictures_row = picture_files[i:i+columns]
             col_list = st.columns(columns)
+
             for col, picture_file in zip(col_list, pictures_row):
                 image = cv2.imread(picture_file)
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                col.image(image_rgb, channels="RGB", use_column_width=True, caption=picture_file)
+                col.image(image_rgb, channels="RGB", use_column_width=True)
+
                 # Add a download button for each picture
                 download_button_caption = "Download"
                 if col.button(download_button_caption, key=picture_file):
@@ -142,7 +168,7 @@ def gallery_page():
                         href = f'data:application/octet-stream;base64,{encoded_file}'
                         download_link = f'<a href="{href}" download="{picture_file}">Click here to download</a>'
                         col.markdown(download_link, unsafe_allow_html=True)
-                        
+
 # Main Streamlit app
 def app():
     selected = option_menu(
